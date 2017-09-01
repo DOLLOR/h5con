@@ -2,7 +2,7 @@
 !(function initSelf(g){
 	"use strict";
 	function sendLog(str){
-		let url = `/fpt-wechat/wxweblog.do?method=printLog&log=${encodeURIComponent(str)}`;
+		let url = `/log.do?method=printLog&log=${encodeURIComponent(str)}`;
 		let el = document.createElement('img');
 		el.src = url;
 	}
