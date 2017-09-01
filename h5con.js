@@ -1,3 +1,4 @@
+// This file will log info on web page
 !(function initSelf(g){
 	"use strict";
 	//html--------------------------------------------------------------------------------
