@@ -96,8 +96,15 @@
 				console:
 				null,
 		_commandFunc:{},
-		logFilter(str){
-			return str;
+		logFilter:function logFilter(str){
+			if(typeof console !== typeof undefined &&
+				typeof console.logFilter === 'function' &&
+				console.logFilter !== logFilter
+			){
+				return console.logFilter(str);
+			}else{
+				return str;
+			}
 		},
 		pushCommands(commands){
 			for(let key in commands){
@@ -129,6 +136,7 @@
 				if(
 					Object.prototype.hasOwnProperty.call(oldConsole,m)&&
 					consoleMethods.indexOf(m)<0&&
+					!(m in newConsole)&&
 					oldConsole[m]
 				){
 					consoleMethods.push(m);
@@ -191,14 +199,22 @@
 		select:gebq('select',elCon),
 		textarea:gebq('textarea',elCon),
 		pushLog(str,method){
+			let time = (function(currentDate){
+				let hour = currentDate.getHours();
+				let minute = currentDate.getMinutes();
+				let second = currentDate.getSeconds();
+				let milli = currentDate.getMilliseconds();
+				return `${hour}:${minute}:${second}:${milli}`;
+			})(new Date());
 			str = newConsole.logFilter(str);
 			if(str==null)return;
 			let div = document.createElement('div');
 			div.className = `h5-console-log-item h5-console-log-item-${method}`;
-			div.innerText = str;
+			div.innerText = `${time}| ${str}`;
 			div.style.maxHeight = '5em';
 			div.onclick = function(){
 				this.style.maxHeight = this.style.maxHeight ? '' : '5em';
+				this.style.backgroundColor = this.style.backgroundColor ? '' : '#efefef';
 			};
 			this.log.appendChild(div);
 			this.num.innerText = this.num.innerText * 1 +1;
@@ -262,7 +278,7 @@
 		
 	};
 	//init con-------------------------------------------------
-	newConsole.log('this is console');
+	newConsole.log('location.href=',location.href);
 	newConsole.pushCommands({
 		'--commands--':'',
 		localStorage:'localStorage',
