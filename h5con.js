@@ -103,7 +103,7 @@
 			){
 				return console.logFilter(str);
 			}else{
-				return str;
+				return str.slice(0,1500);
 			}
 		},
 		pushCommands(commands){
@@ -266,11 +266,11 @@
 				try{
 					str = fun();
 					newConsole.cout(str);
-					break;
 				}catch(er){
 					newConsole.cout(er);
 					throw er;
 				}
+				break;
 			}
 			case 'close':
 				conEl.panel.style.display = 'none';
