@@ -1,10 +1,38 @@
 // This file will log info onto server
 !(function initSelf(g){
 	"use strict";
-	function sendLog(str){
-		let url = `/log.do?method=printLog&log=${encodeURIComponent(str)}`;
+	let serverLogUrl = `${location.pathname.split('/').slice(0,2).join('/')}/wxweblog.do?method=printLog`;
+	let logs = [];
+	setInterval(()=>{
+		sendLogXhr(getLogs());
+	},3000);
+	function getLogs(){
+		let str = logs.join('\n');
+		logs = [];
+		return str;
+	}
+	function sendLogImg(str){
+		if(!str)return;
+		let url = `${location.pathname.split('/').slice(0,2).join('/')}/wxweblog.do?method=printLog&log=${encodeURIComponent(str)}`;
 		let el = document.createElement('img');
 		el.src = url;
+	}
+	function sendLogXhr(str){
+		if(!str)return;
+		let xhr = new XMLHttpRequest();
+		xhr.open('POST',serverLogUrl,true);
+		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		xhr.send(`log=${encodeURIComponent(str)}`);
+	}
+	function sendLogBeacon(str){
+		if(!str)return;
+		navigator.sendBeacon(serverLogUrl, `log=${encodeURIComponent(str)}`);
+	}
+	if(navigator.sendBeacon){
+		window.addEventListener('unload', ()=>{
+			console.log('The page was unloaded.');
+			sendLogBeacon(getLogs());
+		});
 	}
 	//创建对象newConsole-------------------------------------------------------------------
 	const newConsole = {
@@ -12,8 +40,15 @@
 				console:
 				null,
 		_commandFunc:{},
-		logFilter(str){
-			return str;
+		logFilter:function logFilter(str){
+			if(typeof console !== typeof undefined &&
+				typeof console.logFilter === 'function' &&
+				console.logFilter !== logFilter
+			){
+				return console.logFilter(str);
+			}else{
+				return str;
+			}
 		},
 		log:null,
 		info:null,
@@ -29,6 +64,7 @@
 				if(
 					Object.prototype.hasOwnProperty.call(oldConsole,m)&&
 					consoleMethods.indexOf(m)<0&&
+					!(m in newConsole)&&
 					oldConsole[m]
 				){
 					consoleMethods.push(m);
@@ -41,7 +77,16 @@
 
 			//console.log, etc
 			newConsole[method] = function(...args){
-				let time = new Date().toString().match(/\d+\:\d+\:\d+/)[0],
+				let time = (function(currentDate){
+					let year = currentDate.getFullYear();
+					let month = currentDate.getMonth()+1;
+					let day = currentDate.getDate();
+					let hour = currentDate.getHours();
+					let minute = currentDate.getMinutes();
+					let second = currentDate.getSeconds();
+					let milli = currentDate.getMilliseconds();
+					return `${year}.${month}.${day}/${hour}:${minute}:${second}:${milli}`;
+				})(new Date()),
 					res;
 
 				log2browserConsole:{
@@ -52,8 +97,14 @@
 						res = oldConsole[method](args.join('\t'));
 					}
 				}
-				//log to h5console
-				sendLog(args.map(stringify).join('\t'),method);
+
+				let logBody = args.map(stringify).join('\t');
+				logBody = newConsole.logFilter(logBody);
+				if(logBody==null) return res;
+
+				let logHead = `${time} ${method}`;
+
+				logs.push(`-----${logHead}-----\n${logBody}`);
 				return res;
 			};
 		}
@@ -63,7 +114,7 @@
 			}else if(typeof o.stack === 'string' && typeof o.message ==='string'){
 				return `${o.message}\n${o.stack}`;
 			}else if(typeof o !== 'string'){
-				var res = JSON.stringify(o,function(key,value){
+				let res = JSON.stringify(o,function(key,value){
 					if(typeof value === "function"){
 						return value.toString();
 					}
