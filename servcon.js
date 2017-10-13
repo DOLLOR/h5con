@@ -13,7 +13,7 @@
 	}
 	function sendLogImg(str){
 		if(!str)return;
-		let url = `${location.pathname.split('/').slice(0,2).join('/')}/wxweblog.do?method=printLog&log=${encodeURIComponent(str)}`;
+		let url = `${serverLogUrl}&log=${encodeURIComponent(str)}`;
 		let el = document.createElement('img');
 		el.src = url;
 	}
@@ -28,12 +28,24 @@
 		if(!str)return;
 		navigator.sendBeacon(serverLogUrl, `log=${encodeURIComponent(str)}`);
 	}
-	if(navigator.sendBeacon){
-		window.addEventListener('unload', ()=>{
-			console.log('The page was unloaded.');
+	let unloadHandler = function(){
+		console.log('The page was unloaded.');
+		if(navigator.sendBeacon){
 			sendLogBeacon(getLogs());
-		});
-	}
+		}else{
+			sendLogImg(getLogs());
+		}
+		unloadHandler = null;
+	};
+	window.addEventListener('unload', ()=>{
+		if(unloadHandler) unloadHandler();
+	});
+	window.addEventListener('beforeunload', ()=>{
+		if(unloadHandler) unloadHandler();
+	});
+	window.addEventListener('pagehide', ()=>{
+		if(unloadHandler) unloadHandler();
+	});
 	//创建对象newConsole-------------------------------------------------------------------
 	const newConsole = {
 		_oldConsole:typeof console !== typeof undefined ?
@@ -135,6 +147,7 @@
 		//log error info
 		newConsole.error(
 `Caught an error event!
+page:${location.href}
 url:${url}
 line:${lineNo}:${columnNo}
 ${msg}`
