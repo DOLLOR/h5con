@@ -29,7 +29,6 @@
 		navigator.sendBeacon(serverLogUrl, `log=${encodeURIComponent(str)}`);
 	}
 	let unloadHandler = function(){
-		console.log('The page was unloaded.');
 		if(navigator.sendBeacon){
 			sendLogBeacon(getLogs());
 		}else{
