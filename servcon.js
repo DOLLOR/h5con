@@ -34,17 +34,10 @@
 		}else{
 			sendLogImg(getLogs());
 		}
-		unloadHandler = null;
 	};
-	window.addEventListener('unload', ()=>{
-		if(unloadHandler) unloadHandler();
-	});
-	window.addEventListener('beforeunload', ()=>{
-		if(unloadHandler) unloadHandler();
-	});
-	window.addEventListener('pagehide', ()=>{
-		if(unloadHandler) unloadHandler();
-	});
+	window.addEventListener('unload',unloadHandler);
+	window.addEventListener('beforeunload',unloadHandler);
+	window.addEventListener('pagehide',unloadHandler);
 	//创建对象newConsole-------------------------------------------------------------------
 	const newConsole = {
 		_oldConsole:typeof console !== typeof undefined ?
