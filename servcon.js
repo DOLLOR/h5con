@@ -7,6 +7,11 @@
 	let serverLogUrl = `${location.pathname.split('/').slice(0,2).join('/')}/wxweblog.do?method=printLog`;
 
 	/**
+	 * max length for each log item
+	 */
+	let maxLength = 1500;
+
+	/**
 	 * The list where logs will be stored in
 	 */
 	let logs = [];
@@ -56,7 +61,8 @@
 	 */
 	function sendLogBeacon(str){
 		if(!str)return;
-		navigator.sendBeacon(serverLogUrl, `log=${encodeURIComponent(str)}`);
+		let url = `${serverLogUrl}&log=${encodeURIComponent(str)}`;
+		navigator.sendBeacon(url, '');
 	}
 
 	/**
@@ -90,7 +96,7 @@
 			){
 				return console.logFilter(str);
 			}else{
-				return str.slice(0,1500);
+				return str.slice(0,maxLength);
 			}
 		},
 		log:null,
