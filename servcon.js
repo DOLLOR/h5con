@@ -27,6 +27,13 @@
 	 * Get logs from list
 	 */
 	function getLogs(){
+		if(logs.length<1) return '';
+		logs.unshift(
+			'-----href-----',
+			location.href,
+			'-----UA-----',
+			navigator.userAgent,
+		);
 		let str = logs.join('\n');
 		logs = [];
 		return str;
@@ -70,10 +77,12 @@
 	 * @param {Event} ev
 	 */
 	const unloadHandler = function(ev){
+		let logString = getLogs();
+		logString = `${ev.type}\n${logString}`;
 		if(navigator.sendBeacon){
-			sendLogBeacon(getLogs());
+			sendLogBeacon(logString);
 		}else{
-			sendLogImg(getLogs());
+			sendLogImg(logString);
 		}
 	};
 	window.addEventListener('unload',unloadHandler);
