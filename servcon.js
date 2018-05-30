@@ -11,6 +11,18 @@
 	 */
 	let maxLength = 1500;
 
+	let logFilter = function(str){
+		if(
+			this &&
+			this._oldConsole &&
+			typeof this._oldConsole.logFilter === 'function'
+		){
+			return this._oldConsole.logFilter(str);
+		}else{
+			return str.slice(0,maxLength);
+		}
+	};
+
 	/**
 	 * The list where logs will be stored in
 	 */
@@ -100,16 +112,7 @@
 				console:
 				null,
 		_commandFunc:{},
-		logFilter:function logFilter(str){
-			if(typeof console !== typeof undefined &&
-				typeof console.logFilter === 'function' &&
-				console.logFilter !== logFilter
-			){
-				return console.logFilter(str);
-			}else{
-				return str.slice(0,maxLength);
-			}
-		},
+		logFilter,
 		log:null,
 		info:null,
 		warn:null,
