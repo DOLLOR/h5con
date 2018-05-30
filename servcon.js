@@ -32,7 +32,7 @@
 			'-----href-----',
 			location.href,
 			'-----UA-----',
-			navigator.userAgent,
+			navigator.userAgent
 		);
 		let str = logs.join('\n');
 		logs = [];
@@ -78,6 +78,7 @@
 	 */
 	const unloadHandler = function(ev){
 		let logString = getLogs();
+		if(!logString) return;
 		logString = `${ev.type}\n${logString}`;
 		if(navigator.sendBeacon){
 			sendLogBeacon(logString);
