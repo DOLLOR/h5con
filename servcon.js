@@ -69,7 +69,7 @@
 	function sendLogBeacon(str){
 		if(!str)return;
 		let url = `${serverLogUrl}&log=${encodeURIComponent(str)}`;
-		navigator.sendBeacon(url, '');
+		navigator.sendBeacon(url, 'Beacon');
 	}
 
 	/**
@@ -79,10 +79,11 @@
 	const unloadHandler = function(ev){
 		let logString = getLogs();
 		if(!logString) return;
-		logString = `${ev.type}\n${logString}`;
 		if(navigator.sendBeacon){
+			logString = `sendBeacon, ${ev.type}\n${logString}`;
 			sendLogBeacon(logString);
 		}else{
+			logString = `sendPic, ${ev.type}\n${logString}`;
 			sendLogImg(logString);
 		}
 	};
