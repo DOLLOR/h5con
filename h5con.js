@@ -171,12 +171,19 @@
 			}else if(typeof o.stack === 'string' && typeof o.message ==='string'){
 				return `${o.message}\n${o.stack}`;
 			}else if(typeof o !== 'string'){
-				var res = JSON.stringify(o,function(key,value){
-					if(typeof value === "function"){
-						return value.toString();
+				var res = '[circular structure]';
+				try{
+					res = JSON.stringify(o,function(key,value){
+						if(typeof value === "function"){
+							return value.toString();
+						}
+						return value;
+					},"  ");
+				}catch(er){
+					if(er&&er.message){
+						res = er.message;
 					}
-					return value;
-				},"  ");
+				}
 				return res;
 			}else if(o ===''){
 				return '\'\'';
