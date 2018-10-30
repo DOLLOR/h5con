@@ -171,7 +171,7 @@
 			}else if(typeof o.stack === 'string' && typeof o.message ==='string'){
 				return `${o.message}\n${o.stack}`;
 			}else if(typeof o !== 'string'){
-				var res = '[circular structure]';
+				var res = '[unstringifiable]';
 				try{
 					res = JSON.stringify(o,function(key,value){
 						if(typeof value === "function"){
@@ -181,7 +181,7 @@
 					},"  ");
 				}catch(er){
 					if(er&&er.message){
-						res = er.message;
+						res = `[${er.message}]`;
 					}
 				}
 				return res;
